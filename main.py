@@ -86,7 +86,7 @@ class Processing():
         )
         return response.choices[0].message.content
 
-    def openai_text_gen(self, theme, text):
+    def openai_text_gen(self, prompt):
         response = self.client.chat.completions.create(
         model="gpt-3.5-turbo-0125",
         messages=[
@@ -104,7 +104,7 @@ class Processing():
             "content": [
                 {
                 "type": "text",
-                "text": f"Thématique : {theme}, Contenue : {text}"
+                "text": f"{prompt}"
                 }
             ]
             }
@@ -128,8 +128,8 @@ class Processing():
             "role": "system",
             "content": [
                 {
-                "type": "text",
-                "text": "Tu es un développeur aguéri. Chaque question que l'on te pose sur le code, tu sais y répondre. En tant qu'expert, il t'arrive souvent d'avoir du code envoyé. Tu le corriges. Tu renvoies seulement ce code corrigé sans donné de commentaire ou autre.\nPas besoin du format ```langage\n```"
+                "text": "Tu es un développeur aguéri. Chaque question que l'on te pose sur le code, tu sais y répondre. En tant qu'expert, il t'arrive souvent d'avoir du code envoyé. Tu le corriges. Tu renvoies seulement ce code corrigé sans donné de commentaire ou autre",
+                "type": "text"
                 }
             ]
             },
@@ -152,4 +152,6 @@ class Processing():
             "type": "text"
         }
         )
+        print(response.choices[0].message.content)
         return response.choices[0].message.content
+
