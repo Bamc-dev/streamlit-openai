@@ -1,9 +1,10 @@
 import streamlit as st
+from main import Processing
 st.set_page_config(page_title="OpenAI - WebApp", page_icon=":sunglasses:")
 
 st.header("Welcome on my own ChatGPT")
 
-key = st.secrets["OPENAIKEY"]
+chatty = Processing(st.secrets["OPENAIKEY"])
 
 options = st.selectbox(
     "Select the model",

@@ -153,7 +153,3 @@ class Processing():
         }
         )
         return response.choices[0].message.content
-
-process = Processing()
-
-print(process.openai_translate("My name is Brandon"))
