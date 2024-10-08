@@ -1,29 +1,29 @@
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.stem import WordNetLemmatizer
+# import nltk
+# from nltk.tokenize import word_tokenize
+# from nltk.corpus import stopwords
+# from nltk.stem import PorterStemmer
+# from nltk.stem import WordNetLemmatizer
 from openai import OpenAI
 
-nltk.download('punkt_tab')
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('wordnet')
+# nltk.download('punkt_tab')
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('wordnet')
 
 class Processing():
     def __init__(self, secrets):
-        self.stemmer = PorterStemmer()
-        self.lemmatizer = WordNetLemmatizer()
+        # self.stemmer = PorterStemmer()
+        # self.lemmatizer = WordNetLemmatizer()
         self.client = OpenAI(api_key=secrets)
-    def tokenization(self, doc:str, stem:bool=False, lem:bool=False):
-        tokens = word_tokenize(doc)
-        tokens = [x for x in tokens if x not in stopwords.words('english') and x.isalnum()]
-        tokens = [x.lower() for x in tokens]
-        if(stem):
-            tokens = [self.stemmer.stem(x) for x in tokens]
-        if(lem):
-            tokens = [self.lemmatizer.lemmatize(x) for x in tokens] 
-        return tokens
+    # def tokenization(self, doc:str, stem:bool=False, lem:bool=False):
+    #     tokens = word_tokenize(doc)
+    #     tokens = [x for x in tokens if x not in stopwords.words('english') and x.isalnum()]
+    #     tokens = [x.lower() for x in tokens]
+    #     if(stem):
+    #         tokens = [self.stemmer.stem(x) for x in tokens]
+    #     if(lem):
+    #         tokens = [self.lemmatizer.lemmatize(x) for x in tokens] 
+    #     return tokens
     
     def openai_translate(self, textToTranslate):
         response = self.client.chat.completions.create(
