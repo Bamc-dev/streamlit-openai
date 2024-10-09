@@ -4,7 +4,10 @@
 # from nltk.stem import PorterStemmer
 # from nltk.stem import WordNetLemmatizer
 from openai import OpenAI
-
+from PIL.Image import open
+import io
+import requests
+import base64
 # nltk.download('punkt_tab')
 # nltk.download('stopwords')
 # nltk.download('punkt')
@@ -14,6 +17,7 @@ class Processing():
     def __init__(self, secrets):
         # self.stemmer = PorterStemmer()
         # self.lemmatizer = WordNetLemmatizer()
+        self.secrets = secrets
         self.client = OpenAI(api_key=secrets)
     # def tokenization(self, doc:str, stem:bool=False, lem:bool=False):
     #     tokens = word_tokenize(doc)
@@ -152,6 +156,86 @@ class Processing():
             "type": "text"
         }
         )
-        print(response.choices[0].message.content)
         return response.choices[0].message.content
+    def openai_create_image(self, prompt):
+        response = self.client.images.generate(
+        model="dall-e-3",
+        prompt=f"{self.generate_prompt_with_chatgpt(prompt)}",
+        size="1024x1024",
+        quality="standard",
+        n=1,
+        )
 
+        return response.data[0].url
+    def openai_create_image_variation(self, img):
+        response = self.client.images.create_variation(
+        model="dall-e-2",
+        image=open(io.BytesIO(img), "rb"),
+        n=1,
+        size="1024x1024"
+        )
+        return response.data[0].url
+    def generate_prompt_with_chatgpt(self, prompt):
+        response = self.client.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        messages=[
+            {
+            "role": "system",
+            "content": [
+                {
+                "type": "text",
+                "text": "Tu va prendre en entrée un prompt. Celui-ci sera d'un utilisateur lambda, qui ne s'y connait pas en IA.\nToi, ton travail sera d'améliorer se prompt afin que Dall-E puisse généré une image avec plus de détails.\nAucune autre instruction n'est toléré, ton but, juste amélioré un prompt."
+                }
+            ]
+            },
+            {
+            "role": "user",
+            "content": [
+                {
+                "type": "text",
+                "text": f"{prompt}"
+                }
+            ]
+            }
+        ],
+        temperature=1,
+        max_tokens=2048,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        response_format={
+            "type": "text"
+        }
+        )
+        return response.choices[0].message.content
+    def vision_analyze_image(self, img):
+        base64_image = base64.b64encode(img).decode('utf-8')
+        headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.secrets}"
+        }
+
+        payload = {
+        "model": "gpt-4o-mini",
+        "messages": [
+            {
+            "role": "user",
+            "content": [
+                {
+                "type": "text",
+                "text": "What’s in this image?"
+                },
+                {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}",
+                    "detail": "high"
+                }
+                }
+            ]
+            }
+        ],
+        "max_tokens": 300
+        }
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        return response.json()['choices'][0]['message']['content']

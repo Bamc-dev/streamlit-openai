@@ -7,7 +7,6 @@ st.set_page_config(page_title="OpenAI - WebApp", page_icon=":sunglasses:")
 st.header("Welcome on my own ChatGPT")
 
 chatty = Processing(st.secrets["OPENAIKEY"])
-
 options = st.selectbox(
     "Select the model",
     ("Translate", "Summary", "Text Generator", "Code Helper"),
