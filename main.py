@@ -8,6 +8,7 @@ from PIL.Image import open
 import io
 import requests
 import base64
+from pydub import AudioSegment
 # nltk.download('punkt_tab')
 # nltk.download('stopwords')
 # nltk.download('punkt')
@@ -157,6 +158,7 @@ class Processing():
         }
         )
         return response.choices[0].message.content
+    
     def openai_create_image(self, prompt):
         response = self.client.images.generate(
         model="dall-e-3",
@@ -167,6 +169,7 @@ class Processing():
         )
 
         return response.data[0].url
+    
     def openai_create_image_variation(self, img):
         response = self.client.images.create_variation(
         model="dall-e-2",
@@ -175,6 +178,7 @@ class Processing():
         size="1024x1024"
         )
         return response.data[0].url
+    
     def generate_prompt_with_chatgpt(self, prompt):
         response = self.client.chat.completions.create(
         model="gpt-3.5-turbo-0125",
@@ -239,3 +243,20 @@ class Processing():
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         return response.json()['choices'][0]['message']['content']
+    def openai_transcribe(self, audioBytes):
+        buffer = io.BytesIO(audioBytes)
+        buffer.name = "segment.mp3"
+        transcription = self.client.audio.transcriptions.create(
+            model="whisper-1",
+            file=buffer
+        )
+        return transcription.text
+    
+    def openai_translate_audio(self, audioBytes):
+        buffer = io.BytesIO(audioBytes)
+        buffer.name = "recorded.mp3"
+        transcript = self.client.audio.translations.create(
+            model="whisper-1",
+            file=buffer
+        )
+        return transcript.text
